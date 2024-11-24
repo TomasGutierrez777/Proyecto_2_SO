@@ -135,17 +135,3 @@ int main(int argc, char *argv[]) {
     std::cout << "Simulation complete." << std::endl;
     return 0;
 }
-
-/*
-Compiling instructions:
-To compile the code, you can use the following command in a Linux terminal:
-
-$ g++ -std=c++11 -pthread -o simulapc simulapc.cpp
-
-Explanation:
-- `g++`: The GNU C++ compiler.
-- `-std=c++11`: Specifies the C++ standard to use (C++11 in this case).
-- `-pthread`: Links the pthread library for multithreading support.
-- `-o simulapc`: Specifies the output executable name (simulapc).
-- `simulapc.cpp`: The source code file name.
-*/
