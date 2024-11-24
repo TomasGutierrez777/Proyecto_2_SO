@@ -21,7 +21,8 @@ public:
     MonitorQueue(size_t initial_capacity) : capacity(initial_capacity) {
         logFile.open("log.txt", std::ios::out | std::ios::trunc);
         if (!logFile.is_open()) {
-            std::cerr << "Failed to open log file. Check directory permissions." << std::endl; exit(1);
+            std::cerr << "Failed to open log file. Check directory permissions." << std::endl;
+            exit(1);
         }
     }
 
@@ -39,6 +40,7 @@ public:
         logFile << "Pushed: " << value << " | Queue size: " << queue.size() << "\n";
         logFile.flush();
 
+        // Si la cola está llena, duplicamos la capacidad
         if (queue.size() == capacity) {
             capacity *= 2;
             logFile << "Queue size doubled to: " << capacity << "\n";
@@ -57,6 +59,7 @@ public:
         logFile << "Popped: " << value << " | Queue size: " << queue.size() << "\n";
         logFile.flush();
 
+        // Reducir la capacidad si la cola está muy vacía
         if (queue.size() <= capacity / 4 && capacity > 1) {
             capacity /= 2;
             logFile << "Queue size reduced to: " << capacity << "\n";
@@ -66,26 +69,38 @@ public:
         cv_full.notify_one();
         return value;
     }
+
+    bool isEmpty() {
+        std::unique_lock<std::mutex> lock(mtx);
+        return queue.empty();
+    }
 };
 
+// Función del productor
 void producer(MonitorQueue* queue, int id, int num_items) {
     for (int i = 0; i < num_items; ++i) {
         queue->push(id * 100 + i);
         std::cout << "Producer " << id << " pushed: " << (id * 100 + i) << "\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Espera de 100ms entre empujes
     }
 }
 
+// Función del consumidor
 void consumer(MonitorQueue* queue, int max_wait_time) {
     auto end_time = std::chrono::steady_clock::now() + std::chrono::seconds(max_wait_time);
     while (std::chrono::steady_clock::now() < end_time) {
+        // Si la cola está vacía, detener el consumidor
+        if (queue->isEmpty()) {
+            break;
+        }
+
         int value = queue->pop();
         std::cout << "Consumer popped: " << value << "\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));  // Espera de 150ms entre extracciones
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     int num_producers = 0;
     int num_consumers = 0;
     size_t initial_queue_size = 0;
@@ -94,13 +109,33 @@ int main(int argc, char *argv[]) {
     // Parsing command-line arguments
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "-p") == 0) {
-            num_producers = std::stoi(argv[++i]);
+            try {
+                num_producers = std::stoi(argv[++i]);
+            } catch (const std::invalid_argument& e) {
+                std::cerr << "Invalid argument for number of producers: " << argv[i] << std::endl;
+                return 1;
+            }
         } else if (strcmp(argv[i], "-c") == 0) {
-            num_consumers = std::stoi(argv[++i]);
+            try {
+                num_consumers = std::stoi(argv[++i]);
+            } catch (const std::invalid_argument& e) {
+                std::cerr << "Invalid argument for number of consumers: " << argv[i] << std::endl;
+                return 1;
+            }
         } else if (strcmp(argv[i], "-s") == 0) {
-            initial_queue_size = std::stoi(argv[++i]);
+            try {
+                initial_queue_size = std::stoi(argv[++i]);
+            } catch (const std::invalid_argument& e) {
+                std::cerr << "Invalid argument for queue size: " << argv[i] << std::endl;
+                return 1;
+            }
         } else if (strcmp(argv[i], "-t") == 0) {
-            max_wait_time = std::stoi(argv[++i]);
+            try {
+                max_wait_time = std::stoi(argv[++i]);
+            } catch (const std::invalid_argument& e) {
+                std::cerr << "Invalid argument for max wait time: " << argv[i] << std::endl;
+                return 1;
+            }
         }
     }
 

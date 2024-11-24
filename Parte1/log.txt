@@ -1,0 +1,32 @@
+Pushed: 100 | Queue size: 1
+Popped: 100 | Queue size: 0
+Queue size reduced to: 2
+Pushed: 101 | Queue size: 1
+Popped: 101 | Queue size: 0
+Queue size reduced to: 1
+Pushed: 102 | Queue size: 1
+Queue size doubled to: 2
+Popped: 102 | Queue size: 0
+Queue size reduced to: 1
+Pushed: 103 | Queue size: 1
+Queue size doubled to: 2
+Pushed: 104 | Queue size: 2
+Queue size doubled to: 4
+Popped: 103 | Queue size: 1
+Queue size reduced to: 2
+Pushed: 105 | Queue size: 2
+Queue size doubled to: 4
+Popped: 104 | Queue size: 1
+Queue size reduced to: 2
+Pushed: 106 | Queue size: 2
+Queue size doubled to: 4
+Pushed: 107 | Queue size: 3
+Popped: 105 | Queue size: 2
+Pushed: 108 | Queue size: 3
+Popped: 106 | Queue size: 2
+Pushed: 109 | Queue size: 3
+Popped: 107 | Queue size: 2
+Popped: 108 | Queue size: 1
+Queue size reduced to: 2
+Popped: 109 | Queue size: 0
+Queue size reduced to: 1
